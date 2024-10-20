@@ -2,6 +2,7 @@ package router
 
 import (
 	"exchangeapp/controllers"
+	"exchangeapp/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,9 +14,12 @@ func SetupRouter() *gin.Engine {
 		auth.POST("/register", controllers.Register)
 	}
 
-	v2 := r.Group("/api")
+	api := r.Group("/api")
+	api.GET("/exchangeRates", controllers.GetExchangeRate)
+	// 使用中间件
+	api.Use(middlewares.AuthMiddleWare())
 	{
-		v2.GET("/articles", func(c *gin.Context) {})
+		api.POST("/exchangeRates", controllers.CreateExchangeRate)
 	}
 	return r
 }
