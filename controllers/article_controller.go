@@ -1,11 +1,18 @@
 package controllers
 
 import (
+	"encoding/json"
+	"errors"
 	"exchangeapp/global"
 	"exchangeapp/models"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+	"gorm.io/gorm"
 	"net/http"
+	"time"
 )
+
+var cacheKey = "articles"
 
 func CreateArticle(ctx *gin.Context) {
 	var article models.Article
@@ -23,16 +30,52 @@ func CreateArticle(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// 每插入一条新的数据，则必须将缓存清空，
+	if err := global.RedisDB.Del(cacheKey).Err(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	ctx.JSON(http.StatusOK, article)
 }
 
 func GetArticles(ctx *gin.Context) {
-	var articles []models.Article
-	if err := global.DB.Find(&articles).Error; err != nil {
+	result, err := global.RedisDB.Get(cacheKey).Result()
+	if err == redis.Nil {
+		// key不存在 查询并构建缓存
+		var articles []models.Article
+		if err = global.DB.Find(&articles).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				ctx.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+			} else {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			}
+			return
+		}
+		// 序列化
+		articleJson, err := json.Marshal(articles)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		//存入 redis
+		if err = global.RedisDB.Set(cacheKey, articleJson, 10*time.Minute).Err(); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, articles)
+	} else if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	} else {
+		// 从redis中获取
+		var articles []models.Article
+		err = json.Unmarshal([]byte(result), &articles)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusOK, articles)
 	}
-	ctx.JSON(http.StatusOK, articles)
 }
 
 func GetArticleById(ctx *gin.Context) {
