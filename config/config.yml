@@ -1,0 +1,10 @@
+app:
+  name: CurrencyExchangeApp
+  port: :3000
+# 数据库相关配置
+database:
+    host: localhost
+    port: :3306
+    user: your_username
+    pass: 123456
+    name: currency_exchange_db
