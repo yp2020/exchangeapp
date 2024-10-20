@@ -20,4 +20,11 @@ func Register(ctx *gin.Context) {
 		return
 	}
 	user.PassWord = hashPwd
+	jwt, err := utils.GenerateJWT(user.UserName)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	// 完成 加密，token 生成
+	ctx.JSON(http.StatusOK, gin.H{"token": jwt})
 }
