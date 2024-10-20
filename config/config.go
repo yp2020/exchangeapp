@@ -19,6 +19,11 @@ type Config struct {
 		MaxIdleConns int
 		MaxOpenConns int
 	}
+	RedisConfig struct {
+		Addr     string `yaml:"addr"`
+		DB       int    `yaml:"db"`
+		Password string `yaml:"password"`
+	}
 }
 
 // GlobalConfig 配置
@@ -45,6 +50,6 @@ func InitConfig() error {
 	}
 	// 初始化数据库
 	initDB(GlobalConfig.Database.Host, GlobalConfig.Database.Port, GlobalConfig.Database.User, GlobalConfig.Database.Pass, GlobalConfig.Database.Name)
-
+	InitRedis()
 	return nil
 }

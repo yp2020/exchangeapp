@@ -27,7 +27,7 @@ func CreateExchangeRate(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": exchangeRate})
+	ctx.JSON(http.StatusOK, exchangeRate)
 }
 
 // GetExchangeRate 获取汇率数据
@@ -37,5 +37,5 @@ func GetExchangeRate(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"data": exchangeRates})
+	ctx.JSON(http.StatusOK, exchangeRates)
 }
