@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"exchangeapp/config"
-	"exchangeapp/global"
 	"exchangeapp/router"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
 
 func main() {
@@ -20,19 +24,28 @@ func main() {
 	if port == "" {
 		port = ":8080"
 	}
-	r.Run(config.GlobalConfig.App.Port)
-}
+	//r.Run(config.GlobalConfig.App.Port)
 
-func testOrm() {
-	log.Fatalf("db:%v", global.DB)
-}
-func testConfig() {
-	log.Println(config.GlobalConfig.App.Name)
-	log.Println(config.GlobalConfig.App.Port)
+	srv := &http.Server{
+		Addr:    port,
+		Handler: r,
+	}
 
-	log.Println(config.GlobalConfig.Database.Host)
-	log.Println(config.GlobalConfig.Database.Port)
-	log.Println(config.GlobalConfig.Database.User)
-	log.Println(config.GlobalConfig.Database.Pass)
-	log.Println(config.GlobalConfig.Database.Name)
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	log.Println("Server exiting")
 }
