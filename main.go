@@ -2,6 +2,7 @@ package main
 
 import (
 	"exchangeapp/config"
+	"exchangeapp/router"
 	"log"
 )
 
@@ -11,8 +12,12 @@ func main() {
 		// 初始化失败，直接panic
 		panic(err)
 	}
-	testConfig()
-
+	r := router.SetupRouter()
+	port := config.GlobalConfig.App.Port
+	if port == "" {
+		port = ":8080"
+	}
+	r.Run(config.GlobalConfig.App.Port)
 }
 
 func testConfig() {
