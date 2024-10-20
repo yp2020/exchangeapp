@@ -1,13 +1,16 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	"exchangeapp/controllers"
+	"github.com/gin-gonic/gin"
+)
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	auth := r.Group("/api/auth")
 	{
-		auth.POST("/login", func(c *gin.Context) {})
-		auth.POST("/register", func(c *gin.Context) {})
+		auth.POST("/login", controllers.Login)
+		auth.POST("/register", controllers.Register)
 	}
 
 	v2 := r.Group("/api")

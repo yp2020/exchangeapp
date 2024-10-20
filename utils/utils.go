@@ -19,3 +19,10 @@ func GenerateJWT(username string) (string, error) {
 	signedString, err := token.SignedString([]byte("secret"))
 	return "Bearer " + signedString, err
 }
+
+// CheckPassword  验证密码
+func CheckPassword(hashedPassword, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	// err==nil 表示密码正确
+	return err == nil
+}

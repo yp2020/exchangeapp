@@ -3,6 +3,7 @@ package main
 import (
 	"exchangeapp/config"
 	"exchangeapp/global"
+	"exchangeapp/router"
 	"log"
 )
 
@@ -13,13 +14,13 @@ func main() {
 		panic(err)
 	}
 
-	testOrm()
-	//r := router.SetupRouter()
-	//port := config.GlobalConfig.App.Port
-	//if port == "" {
-	//	port = ":8080"
-	//}
-	//r.Run(config.GlobalConfig.App.Port)
+	//testOrm()
+	r := router.SetupRouter()
+	port := config.GlobalConfig.App.Port
+	if port == "" {
+		port = ":8080"
+	}
+	r.Run(config.GlobalConfig.App.Port)
 }
 
 func testOrm() {
