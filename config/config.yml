@@ -4,7 +4,10 @@ app:
 # 数据库相关配置
 database:
     host: localhost
-    port: :3306
-    user: your_username
+    port: 3306
+    user: tester
     pass: 123456
     name: currency_exchange_db
+    MaxIdleConns: 11
+    MaxOpenConns: 110
+

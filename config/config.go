@@ -11,11 +11,13 @@ type Config struct {
 		Port string
 	}
 	Database struct {
-		Host string
-		Port string
-		User string
-		Pass string
-		Name string
+		Host         string
+		Port         string
+		User         string
+		Pass         string
+		Name         string
+		MaxIdleConns int
+		MaxOpenConns int
 	}
 }
 
@@ -41,5 +43,8 @@ func InitConfig() error {
 		log.Fatalln("unmarshal config error")
 		return err
 	}
+	// 初始化数据库
+	initDB(GlobalConfig.Database.Host, GlobalConfig.Database.Port, GlobalConfig.Database.User, GlobalConfig.Database.Pass, GlobalConfig.Database.Name)
+
 	return nil
 }

@@ -2,7 +2,7 @@ package main
 
 import (
 	"exchangeapp/config"
-	"exchangeapp/router"
+	"exchangeapp/global"
 	"log"
 )
 
@@ -12,14 +12,19 @@ func main() {
 		// 初始化失败，直接panic
 		panic(err)
 	}
-	r := router.SetupRouter()
-	port := config.GlobalConfig.App.Port
-	if port == "" {
-		port = ":8080"
-	}
-	r.Run(config.GlobalConfig.App.Port)
+
+	testOrm()
+	//r := router.SetupRouter()
+	//port := config.GlobalConfig.App.Port
+	//if port == "" {
+	//	port = ":8080"
+	//}
+	//r.Run(config.GlobalConfig.App.Port)
 }
 
+func testOrm() {
+	log.Fatalf("db:%v", global.DB)
+}
 func testConfig() {
 	log.Println(config.GlobalConfig.App.Name)
 	log.Println(config.GlobalConfig.App.Port)
